@@ -5,53 +5,124 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FloatingButton from "../components/FloatingButton";
 
-
 function MantenimientosPage() {
   const [mantenimientos, setMantenimientos] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
+  const [tipoFiltro, setTipoFiltro] = useState("Todos");
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/mantenimientos")
-      .then(res => setMantenimientos(res.data))
+    api
+      .get("/mantenimientos")
+      .then((res) => setMantenimientos(res.data))
       .catch(() => toast.error("❌ Error al cargar mantenimientos"));
   }, []);
 
+  // Filtro que deberia servir igual que en equipos
+  const mantenimientosFiltrados = mantenimientos.filter((m) => {
+    const coincideTexto =
+      [m.tipo, m.agente, m.equipo_nombre]
+        .join(" ")
+        .toLowerCase()
+        .includes(busqueda.toLowerCase());
+
+    const coincideTipo =
+      tipoFiltro === "Todos" || m.tipo === tipoFiltro;
+
+    return coincideTexto && coincideTipo;
+  });
+
   return (
-    <div style={{ padding: "2rem", backgroundColor: "#f0f8ff", minHeight: "100vh" }}>
+    <div
+      style={{
+        padding: "2rem",
+        backgroundColor: "#f0f8ff",
+        minHeight: "100vh",
+      }}
+    >
       <ToastContainer position="bottom-right" autoClose={2000} />
 
-      <h1 style={{ textAlign: "center", color: "#0077b6", marginBottom: "2rem" }}>
+      <h1
+        style={{
+          textAlign: "center",
+          color: "#0077b6",
+          marginBottom: "1rem",
+        }}
+      >
         Historial de Mantenimientos
       </h1>
 
-      {/* BOTONES DE NAVEGACIÓN */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem", gap: "1rem" }}>
-        <button
-          onClick={() => navigate("/inicio")}
-          style={btn("#90e0ef", "#03045e")}
+      {/* 🔹 Buscador + Filtro */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "1rem",
+          marginBottom: "1.5rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <input
+          type="text"
+          placeholder="🔍 Buscar por tipo, agente o equipo..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{
+            padding: "0.8rem 1rem",
+            width: "50%",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            fontSize: "1rem",
+          }}
+        />
+
+        <select
+          value={tipoFiltro}
+          onChange={(e) => setTipoFiltro(e.target.value)}
+          style={{
+            padding: "0.8rem",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            fontSize: "1rem",
+          }}
         >
+          <option value="Todos">Todos</option>
+          <option value="Preventivo">Preventivo</option>
+          <option value="Correctivo">Correctivo</option>
+        </select>
+      </div>
+
+      {/* 🔹 Botones de navegación */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "1.5rem",
+          gap: "1rem",
+        }}
+      >
+        <button onClick={() => navigate("/inicio")} style={btn("#90e0ef", "#03045e")}>
           ⬅️ Volver al inicio
         </button>
-        <button
-          onClick={() => navigate("/equipos")}
-          style={btn("#0077b6", "white")}
-        >
+        <button onClick={() => navigate("/equipos")} style={btn("#0077b6", "white")}>
           ⚙️ Ir a Equipos
         </button>
-        <button
-          onClick={() => navigate("/mantenimientos/nuevo")}
-          style={btn("#00b4d8", "white")}
-        >
+        <button onClick={() => navigate("/mantenimientos/nuevo")} style={btn("#00b4d8", "white")}>
           ➕ Agregar Mantenimiento
         </button>
       </div>
 
-      {/* LISTADO */}
-      {mantenimientos.length === 0 ? (
-        <p style={{ textAlign: "center", color: "#333" }}>No hay mantenimientos registrados.</p>
+      {/* 🔹 Listado */}
+      {mantenimientosFiltrados.length === 0 ? (
+        <p style={{ textAlign: "center", color: "#333" }}>
+          {busqueda || tipoFiltro !== "Todos"
+            ? "No se encontraron resultados para tu búsqueda."
+            : "No hay mantenimientos registrados."}
+        </p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {mantenimientos.map((m) => (
+          {mantenimientosFiltrados.map((m) => (
             <div
               key={m.id}
               onClick={() => navigate(`/mantenimientos/${m.id}`)}
@@ -82,8 +153,8 @@ function MantenimientosPage() {
           ))}
         </div>
       )}
-      <FloatingButton destino="/mantenimientos/nuevo" tooltip="Agregar mantenimiento" />
 
+      <FloatingButton destino="/mantenimientos/nuevo" tooltip="Agregar mantenimiento" />
     </div>
   );
 }

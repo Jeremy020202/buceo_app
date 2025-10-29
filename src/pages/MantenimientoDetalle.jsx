@@ -9,6 +9,7 @@ function MantenimientoDetalle() {
   const navigate = useNavigate();
   const [mantenimiento, setMantenimiento] = useState(null);
   const [editando, setEditando] = useState(false);
+  const [guardando, setGuardando] = useState(false);
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
@@ -25,6 +26,7 @@ function MantenimientoDetalle() {
   };
 
   const handleGuardar = async () => {
+    setGuardando(true);
     try {
       await api.put(`/mantenimientos/${id}`, formData);
       setMantenimiento(formData);
@@ -32,6 +34,8 @@ function MantenimientoDetalle() {
       toast.success("✅ Mantenimiento actualizado correctamente");
     } catch {
       toast.error("❌ Error al guardar cambios");
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -48,22 +52,15 @@ function MantenimientoDetalle() {
 
   if (!mantenimiento) return <p style={{ textAlign: "center" }}>Cargando...</p>;
 
+  const tipoColor = mantenimiento.tipo === "Preventivo" ? "#0077b6" : "#d00000";
+
   return (
     <div style={{ padding: "2rem", backgroundColor: "#f0f8ff", minHeight: "100vh" }}>
       <ToastContainer position="bottom-right" autoClose={2500} />
 
       <button
         onClick={() => navigate("/mantenimientos")}
-        style={{
-          backgroundColor: "#90e0ef",
-          border: "none",
-          borderRadius: "8px",
-          padding: "0.6rem 1.2rem",
-          cursor: "pointer",
-          color: "#03045e",
-          fontWeight: "bold",
-          marginBottom: "1.5rem"
-        }}
+        style={btn("#90e0ef", "#03045e")}
       >
         ⬅️ Volver
       </button>
@@ -76,10 +73,10 @@ function MantenimientoDetalle() {
           maxWidth: "600px",
           margin: "0 auto",
           padding: "2rem",
-          textAlign: "center"
+          textAlign: "center",
         }}
       >
-        <h2 style={{ color: "#0077b6" }}>
+        <h2 style={{ color: tipoColor }}>
           {mantenimiento.tipo === "Preventivo" ? "🧰" : "⚙️"} {mantenimiento.tipo}
         </h2>
 
@@ -88,20 +85,24 @@ function MantenimientoDetalle() {
             {/* Campo: Tipo */}
             <div style={fieldContainer}>
               <label style={labelStyle}>Tipo:</label>
-              <input
+              <select
                 name="tipo"
                 value={formData.tipo}
                 onChange={handleChange}
                 style={inputStyle}
-              />
+              >
+                <option value="Preventivo">Preventivo</option>
+                <option value="Correctivo">Correctivo</option>
+              </select>
             </div>
 
             {/* Campo: Fecha */}
             <div style={fieldContainer}>
-              <label style={labelStyle}>Fecha (YYYY-MM-DD):</label>
+              <label style={labelStyle}>Fecha:</label>
               <input
+                type="date"
                 name="fecha"
-                value={formData.fecha}
+                value={formData.fecha || ""}
                 onChange={handleChange}
                 style={inputStyle}
               />
@@ -136,11 +137,7 @@ function MantenimientoDetalle() {
                 name="equipo_id"
                 value={formData.equipo_id}
                 disabled
-                style={{
-                  ...inputStyle,
-                  backgroundColor: "#eee",
-                  cursor: "not-allowed"
-                }}
+                style={{ ...inputStyle, backgroundColor: "#eee", cursor: "not-allowed" }}
               >
                 <option value={formData.equipo_id}>
                   {formData.equipo_nombre || `ID: ${formData.equipo_id}`}
@@ -151,28 +148,23 @@ function MantenimientoDetalle() {
             <button
               onClick={handleGuardar}
               style={btn("#00b4d8", "white")}
+              disabled={guardando}
             >
-              💾 Guardar cambios
+              {guardando ? "💾 Guardando..." : "💾 Guardar cambios"}
             </button>
           </>
         ) : (
           <>
-            <p><b>Fecha:</b> {mantenimiento.fecha}</p>
+            <p><b>Fecha:</b> {mantenimiento.fecha || "—"}</p>
             <p><b>Agente:</b> {mantenimiento.agente || "—"}</p>
             <p><b>Descripción:</b> {mantenimiento.descripcion || "Sin descripción"}</p>
             <p><b>Equipo asociado:</b> {mantenimiento.equipo_nombre || `ID ${mantenimiento.equipo_id}`}</p>
 
             <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
-              <button
-                onClick={() => setEditando(true)}
-                style={btn("#0077b6", "white")}
-              >
+              <button onClick={() => setEditando(true)} style={btn("#0077b6", "white")}>
                 ✏️ Editar
               </button>
-              <button
-                onClick={handleEliminar}
-                style={btn("#d00000", "white")}
-              >
+              <button onClick={handleEliminar} style={btn("#d00000", "white")}>
                 🗑️ Eliminar
               </button>
             </div>
@@ -183,25 +175,9 @@ function MantenimientoDetalle() {
   );
 }
 
-// --- Estilos base reutilizables ---
-const fieldContainer = {
-  marginBottom: "1rem",
-  textAlign: "left"
-};
-
-const labelStyle = {
-  display: "block",
-  fontWeight: "bold",
-  marginBottom: "0.3rem"
-};
-
-const inputStyle = {
-  width: "100%",
-  padding: "0.5rem",
-  borderRadius: "6px",
-  border: "1px solid #ccc"
-};
-
+const fieldContainer = { marginBottom: "1rem", textAlign: "left" };
+const labelStyle = { display: "block", fontWeight: "bold", marginBottom: "0.3rem" };
+const inputStyle = { width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid #ccc" };
 const btn = (bg, color) => ({
   backgroundColor: bg,
   color,
@@ -209,7 +185,7 @@ const btn = (bg, color) => ({
   borderRadius: "8px",
   padding: "0.6rem 1.2rem",
   cursor: "pointer",
-  fontWeight: "bold"
+  fontWeight: "bold",
 });
 
 export default MantenimientoDetalle;
