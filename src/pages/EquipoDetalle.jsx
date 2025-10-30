@@ -8,16 +8,25 @@ function EquipoDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [equipo, setEquipo] = useState(null);
+  const [mantenimientos, setMantenimientos] = useState([]); // 👈 mantenimientos del equipo
   const [editando, setEditando] = useState(false);
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    api.get(`/equipos/${id}`)
+    // 🧩 Obtener los datos del equipo
+    api
+      .get(`/equipos/${id}`)
       .then((res) => {
         setEquipo(res.data);
         setFormData(res.data);
       })
       .catch(() => toast.error("❌ Error al cargar el equipo"));
+
+    // 🧩 Obtener los mantenimientos asociados
+    api
+      .get(`/mantenimientos?equipo_id=${id}`)
+      .then((res) => setMantenimientos(res.data))
+      .catch(() => toast.error("❌ Error al cargar mantenimientos del equipo"));
   }, [id]);
 
   const handleChange = (e) => {
@@ -68,6 +77,7 @@ function EquipoDetalle() {
         ⬅️ Volver
       </button>
 
+      {/* 🧱 Detalle del equipo */}
       <div
         style={{
           backgroundColor: "white",
@@ -99,92 +109,30 @@ function EquipoDetalle() {
 
         {editando ? (
           <>
-            {/* Campo: Nombre */}
-            <div style={fieldContainer}>
-              <label style={labelStyle}>Nombre:</label>
-              <input
-                name="nombre"
-                value={formData.nombre || ""}
-                onChange={handleChange}
-                style={inputStyle}
-              />
-            </div>
+            {/* Campos editables */}
+            <Campo label="Nombre" name="nombre" value={formData.nombre} onChange={handleChange} />
+            <Campo label="Marca" name="marca" value={formData.marca} onChange={handleChange} />
+            <Campo label="Modelo" name="modelo" value={formData.modelo} onChange={handleChange} />
+            <Campo label="URL de la imagen" name="imagen_url" value={formData.imagen_url} onChange={handleChange} />
 
-            {/* Campo: Marca */}
-            <div style={fieldContainer}>
-              <label style={labelStyle}>Marca:</label>
-              <input
-                name="marca"
-                value={formData.marca || ""}
-                onChange={handleChange}
-                style={inputStyle}
-              />
-            </div>
-
-            {/* Campo: Modelo */}
-            <div style={fieldContainer}>
-              <label style={labelStyle}>Modelo:</label>
-              <input
-                name="modelo"
-                value={formData.modelo || ""}
-                onChange={handleChange}
-                style={inputStyle}
-              />
-            </div>
-
-            {/* Campo: URL de imagen */}
-            <div style={fieldContainer}>
-              <label style={labelStyle}>URL de la imagen:</label>
-              <input
-                name="imagen_url"
-                value={formData.imagen_url || ""}
-                onChange={handleChange}
-                style={inputStyle}
-              />
-            </div>
-
-            {/* Campo: Estado */}
             <div style={fieldContainer}>
               <label style={labelStyle}>Estado:</label>
-              <select
-                name="estado"
-                value={formData.estado || ""}
-                onChange={handleChange}
-                style={inputStyle}
-              >
+              <select name="estado" value={formData.estado || ""} onChange={handleChange} style={inputStyle}>
                 <option value="Activo">Activo</option>
                 <option value="En mantenimiento">En mantenimiento</option>
                 <option value="Dañado">Dañado</option>
               </select>
             </div>
 
-            {/* Campo: Fecha de compra */}
-            <div style={fieldContainer}>
-              <label style={labelStyle}>Fecha de compra:</label>
-              <input
-                name="fecha_compra"
-                value={formData.fecha_compra || ""}
-                onChange={handleChange}
-                placeholder="YYYY-MM-DD"
-                style={inputStyle}
-              />
-            </div>
+            <Campo label="Fecha de compra" name="fecha_compra" value={formData.fecha_compra} onChange={handleChange} />
+            <Campo
+              label="Periodo de mantenimiento"
+              name="periodo_mantenimiento"
+              value={formData.periodo_mantenimiento}
+              onChange={handleChange}
+            />
 
-            {/* Campo: Periodo de mantenimiento */}
-            <div style={fieldContainer}>
-              <label style={labelStyle}>Periodo de mantenimiento:</label>
-              <input
-                name="periodo_mantenimiento"
-                value={formData.periodo_mantenimiento || ""}
-                onChange={handleChange}
-                style={inputStyle}
-              />
-            </div>
-
-            <button
-              onClick={handleGuardar}
-              style={btn("#00b4d8", "white")}
-            >
+            <button onClick={handleGuardar} style={btn("#00b4d8", "white")}>
               💾 Guardar cambios
             </button>
           </>
@@ -198,27 +146,78 @@ function EquipoDetalle() {
             <p><b>Periodo de mantenimiento:</b> {equipo.periodo_mantenimiento}</p>
 
             <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
-              <button
-                onClick={() => setEditando(true)}
-                style={btn("#0077b6", "white")}
-              >
+              <button onClick={() => setEditando(true)} style={btn("#0077b6", "white")}>
                 ✏️ Editar
               </button>
-              <button
-                onClick={handleEliminar}
-                style={btn("#d00000", "white")}
-              >
+              <button onClick={handleEliminar} style={btn("#d00000", "white")}>
                 🗑️ Eliminar
               </button>
             </div>
           </>
         )}
       </div>
+
+      {/* 🧰 Sección de mantenimientos */}
+      <div
+        style={{
+          marginTop: "2rem",
+          backgroundColor: "white",
+          borderRadius: "12px",
+          boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+          maxWidth: "600px",
+          marginInline: "auto",
+          padding: "1.5rem",
+        }}
+      >
+        <h3 style={{ color: "#0077b6", textAlign: "center" }}>Historial de Mantenimientos</h3>
+
+        {/* Botón para agregar mantenimiento */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+          <button
+            onClick={() => navigate(`/mantenimientos/nuevo?equipo_id=${id}`)}
+            style={btn("#00b4d8", "white")}
+          >
+            ➕ Agregar mantenimiento
+          </button>
+        </div>
+
+        {mantenimientos.length === 0 ? (
+          <p style={{ textAlign: "center", color: "#555" }}>Este equipo no tiene mantenimientos registrados.</p>
+        ) : (
+          mantenimientos.map((m) => (
+            <div
+              key={m.id}
+              onClick={() => navigate(`/mantenimientos/${m.id}`)}
+              style={{
+                backgroundColor: "#f8f9fa",
+                borderRadius: "8px",
+                padding: "0.8rem",
+                marginTop: "0.8rem",
+                cursor: "pointer",
+                transition: "transform 0.2s",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+            >
+              <b>{m.tipo === "Preventivo" ? "🧰" : "⚙️"} {m.tipo}</b> — {m.fecha}
+              <p style={{ margin: "0.2rem 0", fontSize: "0.9rem" }}>
+                <b>Agente:</b> {m.agente || "—"}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
 
-// --- Estilos base reutilizables ---
+const Campo = ({ label, name, value, onChange }) => (
+  <div style={fieldContainer}>
+    <label style={labelStyle}>{label}:</label>
+    <input name={name} value={value || ""} onChange={onChange} style={inputStyle} />
+  </div>
+);
+
 const fieldContainer = {
   marginBottom: "1rem",
   textAlign: "left",
