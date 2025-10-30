@@ -1,19 +1,21 @@
+//Vista detallada de un equipo, permite ver, editar y eliminar el equipo, asi como ver y agregar mantenimientos asociados
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Componente principal que consigue id del equipo desde la URL y maneja su estado
 function EquipoDetalle() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [equipo, setEquipo] = useState(null);
-  const [mantenimientos, setMantenimientos] = useState([]); // 👈 mantenimientos del equipo
+  const [mantenimientos, setMantenimientos] = useState([]); 
   const [editando, setEditando] = useState(false);
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    // 🧩 Obtener los datos del equipo
+    // consigue los datos del equipo
     api
       .get(`/equipos/${id}`)
       .then((res) => {
@@ -22,17 +24,17 @@ function EquipoDetalle() {
       })
       .catch(() => toast.error("❌ Error al cargar el equipo"));
 
-    // 🧩 Obtener los mantenimientos asociados
+    // consigue los mantenimientos asociados al equipo
     api
       .get(`/mantenimientos?equipo_id=${id}`)
       .then((res) => setMantenimientos(res.data))
       .catch(() => toast.error("❌ Error al cargar mantenimientos del equipo"));
   }, [id]);
-
+  // maneja cambios en los campos editables
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  // guarda los cambios realizados al equipo
   const handleGuardar = async () => {
     try {
       await api.put(`/equipos/${id}`, formData);
@@ -43,7 +45,7 @@ function EquipoDetalle() {
       toast.error("❌ Error al guardar cambios");
     }
   };
-
+// elimina el equipo
   const handleEliminar = async () => {
     if (!window.confirm("¿Seguro que quieres eliminar este equipo?")) return;
     try {
@@ -54,7 +56,7 @@ function EquipoDetalle() {
       toast.error("❌ Error al eliminar el equipo");
     }
   };
-
+// muestra un mensaje de carga mientras se obtienen los datos
   if (!equipo) return <p style={{ textAlign: "center" }}>Cargando...</p>;
 
   return (
@@ -77,7 +79,7 @@ function EquipoDetalle() {
         ⬅️ Volver
       </button>
 
-      {/* 🧱 Detalle del equipo */}
+      {/*  Detalle del equipo */}
       <div
         style={{
           backgroundColor: "white",
@@ -157,7 +159,7 @@ function EquipoDetalle() {
         )}
       </div>
 
-      {/* 🧰 Sección de mantenimientos */}
+      {/*  Sección de mantenimientos */}
       <div
         style={{
           marginTop: "2rem",

@@ -1,15 +1,17 @@
+//Pagina principal de equipos con filtros y navegación
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import FloatingButton from "../components/FloatingButton";
 
 function EquiposPage() {
+  // 🧰 Estado para equipos, búsqueda y filtros
   const [equipos, setEquipos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("Todos");
   const [marcaFiltro, setMarcaFiltro] = useState("Todas");
   const navigate = useNavigate();
-
+// 🧩 Cargar equipos desde la API
   useEffect(() => {
     axios
       .get("http://127.0.0.1:5000/equipos")
@@ -32,7 +34,7 @@ function EquiposPage() {
       marcaFiltro === "Todas" || eq.marca === marcaFiltro;
     return coincideBusqueda && coincideEstado && coincideMarca;
   });
-
+// 🧱 Renderizado de la página
   return (
     <div
       style={{
@@ -220,7 +222,6 @@ function EquiposPage() {
         </div>
       )}
 
-      {/* 🔹 Botón flotante funcional */}
       <FloatingButton onClick={() => navigate("/equipos/nuevo")} />
     </div>
   );

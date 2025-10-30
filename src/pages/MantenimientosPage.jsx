@@ -1,3 +1,4 @@
+//Pagina principal de mantenimientos con filtros y navegación
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -5,12 +6,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FloatingButton from "../components/FloatingButton";
 
+// Componente principal de la página de mantenimientos
 function MantenimientosPage() {
+  // Estado para mantenimientos, búsqueda y filtro por tipo
   const [mantenimientos, setMantenimientos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [tipoFiltro, setTipoFiltro] = useState("Todos");
   const navigate = useNavigate();
-
+  // Cargar mantenimientos desde la API
   useEffect(() => {
     api
       .get("/mantenimientos")
@@ -18,7 +21,7 @@ function MantenimientosPage() {
       .catch(() => toast.error("❌ Error al cargar mantenimientos"));
   }, []);
 
-  // Filtro que deberia servir igual que en equipos
+  // Filtro combinado de búsqueda y tipo
   const mantenimientosFiltrados = mantenimientos.filter((m) => {
     const coincideTexto =
       [m.tipo, m.agente, m.equipo_nombre]
@@ -158,7 +161,7 @@ function MantenimientosPage() {
     </div>
   );
 }
-
+// Estilos reutilizables
 function btn(bg, color) {
   return {
     backgroundColor: bg,
