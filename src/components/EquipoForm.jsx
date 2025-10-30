@@ -1,9 +1,11 @@
+// Formulario para agregar un nuevo equipo
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function EquipoForm() {
   const navigate = useNavigate();
+  // Estado para los datos del formulario
   const [form, setForm] = useState({
     codigo: "",
     nombre: "",
@@ -14,11 +16,11 @@ function EquipoForm() {
     estado: "",
     imagen_url: "",
   });
-
+// Manejar cambios en los campos del formulario
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+// Enviar datos del formulario al servidor
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

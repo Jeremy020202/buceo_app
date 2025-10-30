@@ -157,7 +157,7 @@ function MantenimientosPage() {
         </div>
       )}
 
-      <FloatingButton destino="/mantenimientos/nuevo" tooltip="Agregar mantenimiento" />
+      <FloatingButton onClick={() => navigate("/mantenimientos/nuevo")} />{/* Botón flotante para agregar nuevo mantenimiento REVISAR QUE SIRVA */}
     </div>
   );
 }

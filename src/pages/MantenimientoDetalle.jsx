@@ -1,3 +1,4 @@
+//Vista detallada y edición de un mantenimiento específico
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -5,13 +6,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function MantenimientoDetalle() {
+  // Obtener ID del mantenimiento desde la URL
   const { id } = useParams();
   const navigate = useNavigate();
+  // Estado para el mantenimiento, modo edición y formulario
   const [mantenimiento, setMantenimiento] = useState(null);
   const [editando, setEditando] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [formData, setFormData] = useState({});
-
+// Cargar detalles del mantenimiento
   useEffect(() => {
     api.get(`/mantenimientos/${id}`)
       .then(res => {
@@ -20,11 +23,11 @@ function MantenimientoDetalle() {
       })
       .catch(() => toast.error("❌ Error al cargar mantenimiento"));
   }, [id]);
-
+// Manejar cambios en el formulario
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+// Guardar cambios realizados
   const handleGuardar = async () => {
     setGuardando(true);
     try {
@@ -38,7 +41,7 @@ function MantenimientoDetalle() {
       setGuardando(false);
     }
   };
-
+// Eliminar el mantenimiento
   const handleEliminar = async () => {
     if (!window.confirm("¿Seguro que quieres eliminar este mantenimiento?")) return;
     try {
@@ -49,22 +52,22 @@ function MantenimientoDetalle() {
       toast.error("❌ Error al eliminar mantenimiento");
     }
   };
-
+// Mostrar carga si no hay mantenimiento
   if (!mantenimiento) return <p style={{ textAlign: "center" }}>Cargando...</p>;
-
+// Color según tipo de mantenimiento
   const tipoColor = mantenimiento.tipo === "Preventivo" ? "#0077b6" : "#d00000";
 
   return (
     <div style={{ padding: "2rem", backgroundColor: "#f0f8ff", minHeight: "100vh" }}>
       <ToastContainer position="bottom-right" autoClose={2500} />
-
+      {/* Botón para volver a la lista de mantenimientos */}
       <button
         onClick={() => navigate("/mantenimientos")}
         style={btn("#90e0ef", "#03045e")}
       >
         ⬅️ Volver
       </button>
-
+      {/* Detalles del mantenimiento */}
       <div
         style={{
           backgroundColor: "white",
@@ -174,7 +177,7 @@ function MantenimientoDetalle() {
     </div>
   );
 }
-
+// Estilos reutilizables
 const fieldContainer = { marginBottom: "1rem", textAlign: "left" };
 const labelStyle = { display: "block", fontWeight: "bold", marginBottom: "0.3rem" };
 const inputStyle = { width: "100%", padding: "0.5rem", borderRadius: "6px", border: "1px solid #ccc" };

@@ -1,12 +1,14 @@
+//formulario para agregar un nuevo mantenimiento
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+// Componente del formulario de mantenimiento
 function MantenimientoForm() {
   const navigate = useNavigate();
   const location = useLocation();
+  // Estado para la lista de equipos y datos del formulario
   const [equipos, setEquipos] = useState([]);
   const [form, setForm] = useState({
     tipo: "",
@@ -25,24 +27,24 @@ function MantenimientoForm() {
     }
   }, [location.search]);
 
-  // 🧰 Cargar la lista de equipos
+  // Cargar equipos para el selector
   useEffect(() => {
     api
       .get("/equipos")
       .then((res) => setEquipos(res.data))
       .catch(() => toast.error("❌ Error al cargar los equipos"));
   }, []);
-
+// Manejar cambios en el formulario
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
+// Enviar datos del formulario al servidor
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await api.post("/mantenimientos", form);
       toast.success("✅ Mantenimiento registrado correctamente");
-      setTimeout(() => navigate("/mantenimientos"), 2000);
+      setTimeout(() => navigate("/mantenimientos"), 2000); //como un redirect
     } catch {
       toast.error("❌ Error al guardar mantenimiento");
     }

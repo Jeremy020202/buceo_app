@@ -1,3 +1,4 @@
+// Componente de botón flotante
 function FloatingButton({ onClick }) {
   return (
     <button
@@ -23,6 +24,8 @@ function FloatingButton({ onClick }) {
       }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#00b4d8")}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#0077b6")}
+      onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.95)")} // efecto de presionado
+      onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1)")}// volver al tamaño normal nuevos por probar
     >
       +
     </button>
