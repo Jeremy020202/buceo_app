@@ -1,6 +1,6 @@
 // Formulario para agregar un nuevo equipo
 import { useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 function EquipoForm() {
@@ -24,7 +24,7 @@ function EquipoForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://127.0.0.1:5000/equipos", form);
+      await api.post("/equipos", form);
       alert("✅ Equipo agregado correctamente");
       navigate("/equipos");
     } catch (err) {

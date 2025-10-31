@@ -1,6 +1,6 @@
 //Pagina principal de equipos con filtros y navegación
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import FloatingButton from "../components/FloatingButton";
 
@@ -13,10 +13,10 @@ function EquiposPage() {
   const navigate = useNavigate();
 // 🧩 Cargar equipos desde la API
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:5000/equipos")
-      .then((res) => setEquipos(res.data))
-      .catch(() => console.error("Error al cargar equipos"));
+      api
+    .get("/equipos")
+    .then((res) => setEquipos(res.data))
+    .catch(() => console.error("Error al cargar equipos"));
   }, []);
 
   // 🔹 Marcas únicas para el filtro
