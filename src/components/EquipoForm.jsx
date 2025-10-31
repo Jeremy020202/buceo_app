@@ -1,11 +1,9 @@
-// Formulario para agregar un nuevo equipo
 import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 function EquipoForm() {
   const navigate = useNavigate();
-  // Estado para los datos del formulario
   const [form, setForm] = useState({
     codigo: "",
     nombre: "",
@@ -16,11 +14,11 @@ function EquipoForm() {
     estado: "",
     imagen_url: "",
   });
-// Manejar cambios en los campos del formulario
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-// Enviar datos del formulario al servidor
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -33,133 +31,197 @@ function EquipoForm() {
     }
   };
 
+  // 🎨 Estilos base actualizados
+  const inputStyle = {
+    width: "98%",
+    alignSelf: "center",
+    padding: "0.8rem 1rem",
+    border: "1px solid #90e0ef",
+    borderRadius: "8px",
+    fontSize: "1rem",
+    color: "#03045e",
+    backgroundColor: "white",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    transition: "border-color 0.2s, box-shadow 0.2s",
+  };
+
+  // 💡 Estilo especial para el campo de fecha (ícono visible)
+  const dateInputStyle = {
+    ...inputStyle,
+    WebkitAppearance: "none",
+    MozAppearance: "textfield",
+  };
+
+  const labelStyle = {
+    fontWeight: "bold",
+    color: "#0077b6",
+    fontSize: "0.95rem",
+  };
+
+  const buttonBase = (bg, color) => ({
+    backgroundColor: bg,
+    color,
+    padding: "0.8rem 1.2rem",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "1rem",
+    transition: "transform 0.2s, background-color 0.2s",
+  });
+
   return (
     <div
       style={{
         padding: "2rem",
         backgroundColor: "#f0f8ff",
         minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
-      <h2 style={{ textAlign: "center", color: "#0077b6" }}>
+      <h2
+        style={{
+          textAlign: "center",
+          background: "linear-gradient(90deg, #0077b6, #00b4d8)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          fontSize: "2rem",
+          marginBottom: "1.5rem",
+        }}
+      >
         Agregar nuevo equipo
       </h2>
 
       <form
         onSubmit={handleSubmit}
         style={{
+          width: "100%",
           maxWidth: "600px",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
           backgroundColor: "white",
           padding: "2rem",
-          borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+          borderRadius: "16px",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.2rem",
         }}
       >
-        <input
-          type="text"
-          name="codigo"
-          placeholder="Código"
-          value={form.codigo}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre"
-          value={form.nombre}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="marca"
-          placeholder="Marca"
-          value={form.marca}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="modelo"
-          placeholder="Modelo"
-          value={form.modelo}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="date"
-          name="fecha_compra"
-          value={form.fecha_compra}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="periodo_mantenimiento"
-          placeholder="Periodo de mantenimiento"
-          value={form.periodo_mantenimiento}
-          onChange={handleChange}
-          required
-        />
+        {/* Campos del formulario */}
+        {[
+          { name: "codigo", label: "Código", type: "text", required: true },
+          { name: "nombre", label: "Nombre", type: "text", required: true },
+          { name: "marca", label: "Marca", type: "text", required: true },
+          { name: "modelo", label: "Modelo", type: "text", required: true },
+          { name: "fecha_compra", label: "Fecha de compra", type: "date", required: true },
+          {
+            name: "periodo_mantenimiento",
+            label: "Periodo de mantenimiento",
+            type: "text",
+            required: true,
+          },
+          {
+            name: "imagen_url",
+            label: "URL de imagen (opcional)",
+            type: "text",
+            required: false,
+          },
+        ].map((field) => (
+          <div
+            key={field.name}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.3rem",
+              alignItems: "center",
+            }}
+          >
+            <label htmlFor={field.name} style={labelStyle}>
+              {field.label}
+            </label>
+            <input
+              id={field.name}
+              type={field.type}
+              name={field.name}
+              value={form[field.name]}
+              onChange={handleChange}
+              required={field.required}
+              style={field.type === "date" ? dateInputStyle : inputStyle}
+              onFocus={(e) => (e.target.style.borderColor = "#00b4d8")}
+              onBlur={(e) => (e.target.style.borderColor = "#90e0ef")}
+            />
+          </div>
+        ))}
 
-        
-        <input
-          type="text"
-          name="imagen_url"
-          placeholder="URL de imagen (opcional)"
-          value={form.imagen_url}
-          onChange={handleChange}
-        />
-
-     
-        <select
-          name="estado"
-          value={form.estado}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccionar estado</option>
-          <option value="Activo">Activo</option>
-          <option value="En mantenimiento">En mantenimiento</option>
-          <option value="Dañado">Dañado</option>
-        </select>
-
-        <button
-          type="submit"
+        {/* Select de estado */}
+        <div
           style={{
-            backgroundColor: "#0077b6",
-            color: "white",
-            padding: "0.8rem",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.3rem",
+            alignItems: "center",
           }}
         >
-          💾 Guardar equipo
-        </button>
+          <label htmlFor="estado" style={labelStyle}>
+            Estado
+          </label>
+          <select
+            name="estado"
+            id="estado"
+            value={form.estado}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+            onFocus={(e) => (e.target.style.borderColor = "#00b4d8")}
+            onBlur={(e) => (e.target.style.borderColor = "#90e0ef")}
+          >
+            <option value="">Seleccionar estado</option>
+            <option value="Activo">Activo</option>
+            <option value="En mantenimiento">En mantenimiento</option>
+            <option value="Dañado">Dañado</option>
+          </select>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => navigate("/equipos")}
+        {/* Botones */}
+        <div
           style={{
-            backgroundColor: "#90e0ef",
-            color: "#03045e",
-            padding: "0.8rem",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "center",
+            marginTop: "1rem",
           }}
         >
-          🔙 Cancelar
-        </button>
+          <button
+            type="submit"
+            style={buttonBase("#0077b6", "white")}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            💾 Guardar equipo
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/equipos")}
+            style={buttonBase("#90e0ef", "#03045e")}
+            onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+          >
+            🔙 Cancelar
+          </button>
+        </div>
       </form>
+
+      {/* 🌟 Fix visual del ícono del calendario */}
+      <style>
+        {`
+          input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(40%) sepia(80%) saturate(400%) hue-rotate(170deg);
+            cursor: pointer;
+          }
+        `}
+      </style>
     </div>
   );
 }

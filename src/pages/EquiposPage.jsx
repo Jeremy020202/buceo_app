@@ -5,24 +5,21 @@ import { useNavigate } from "react-router-dom";
 import FloatingButton from "../components/FloatingButton";
 
 function EquiposPage() {
-  // 🧰 Estado para equipos, búsqueda y filtros
   const [equipos, setEquipos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [estadoFiltro, setEstadoFiltro] = useState("Todos");
   const [marcaFiltro, setMarcaFiltro] = useState("Todas");
   const navigate = useNavigate();
-// 🧩 Cargar equipos desde la API
+
   useEffect(() => {
-      api
-    .get("/equipos")
-    .then((res) => setEquipos(res.data))
-    .catch(() => console.error("Error al cargar equipos"));
+    api
+      .get("/equipos")
+      .then((res) => setEquipos(res.data))
+      .catch(() => console.error("Error al cargar equipos"));
   }, []);
 
-  // 🔹 Marcas únicas para el filtro
   const marcasDisponibles = ["Todas", ...new Set(equipos.map((eq) => eq.marca))];
 
-  // 🔍 Filtro combinado
   const equiposFiltrados = equipos.filter((eq) => {
     const coincideBusqueda = [eq.nombre, eq.marca, eq.modelo]
       .join(" ")
@@ -30,11 +27,33 @@ function EquiposPage() {
       .includes(busqueda.toLowerCase());
     const coincideEstado =
       estadoFiltro === "Todos" || eq.estado === estadoFiltro;
-    const coincideMarca =
-      marcaFiltro === "Todas" || eq.marca === marcaFiltro;
+    const coincideMarca = marcaFiltro === "Todas" || eq.marca === marcaFiltro;
     return coincideBusqueda && coincideEstado && coincideMarca;
   });
-// 🧱 Renderizado de la página
+
+  // 🎨 Estilos base reutilizables
+  const inputBase = {
+    padding: "0.8rem 1rem",
+    borderRadius: "8px",
+    border: "1px solid #90e0ef",
+    backgroundColor: "white",
+    color: "#03045e",
+    fontSize: "1rem",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+    transition: "all 0.2s ease",
+  };
+
+  const buttonBase = (bg, color) => ({
+    backgroundColor: bg,
+    color,
+    border: "none",
+    borderRadius: "8px",
+    padding: "0.8rem 1.5rem",
+    cursor: "pointer",
+    fontWeight: "bold",
+    transition: "background-color 0.2s, transform 0.15s",
+  });
+
   return (
     <div
       style={{
@@ -44,9 +63,23 @@ function EquiposPage() {
         position: "relative",
       }}
     >
-      <h1 style={{ textAlign: "center", color: "#0077b6", marginBottom: "1.5rem" }}>
+      {/* 🔹 Título principal con degradado */}
+      <h1
+        style={{
+          textAlign: "center",
+          background: "linear-gradient(90deg, #0077b6, #00b4d8)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          fontWeight: "bold",
+          fontSize: "2rem",
+          marginBottom: "0.3rem",
+        }}
+      >
         Inventario de Equipos
       </h1>
+      <p style={{ textAlign: "center", color: "#555", marginBottom: "1.5rem" }}>
+        Administra y supervisa todos los equipos de buceo de forma sencilla
+      </p>
 
       {/* 🔹 Filtros y búsqueda */}
       <div
@@ -64,24 +97,13 @@ function EquiposPage() {
           placeholder="🔍 Buscar por nombre, marca o modelo..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          style={{
-            padding: "0.8rem 1rem",
-            width: "300px",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-          }}
+          style={{ ...inputBase, width: "300px" }}
         />
 
         <select
           value={estadoFiltro}
           onChange={(e) => setEstadoFiltro(e.target.value)}
-          style={{
-            padding: "0.7rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-          }}
+          style={inputBase}
         >
           <option value="Todos">Todos los estados</option>
           <option value="Activo">Activo</option>
@@ -92,12 +114,7 @@ function EquiposPage() {
         <select
           value={marcaFiltro}
           onChange={(e) => setMarcaFiltro(e.target.value)}
-          style={{
-            padding: "0.7rem",
-            borderRadius: "8px",
-            border: "1px solid #ccc",
-            fontSize: "1rem",
-          }}
+          style={inputBase}
         >
           {marcasDisponibles.map((m, i) => (
             <option key={i} value={m}>
@@ -118,45 +135,27 @@ function EquiposPage() {
       >
         <button
           onClick={() => navigate("/inicio")}
-          style={{
-            backgroundColor: "#90e0ef",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.8rem 1.5rem",
-            cursor: "pointer",
-            color: "#03045e",
-            fontWeight: "bold",
-          }}
+          style={buttonBase("#90e0ef", "#03045e")}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           ⬅️ Volver al inicio
         </button>
 
         <button
           onClick={() => navigate("/mantenimientos")}
-          style={{
-            backgroundColor: "#0077b6",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.8rem 1.5rem",
-            cursor: "pointer",
-            color: "white",
-            fontWeight: "bold",
-          }}
+          style={buttonBase("#0077b6", "white")}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           🔧 Ir a Mantenimientos
         </button>
 
         <button
           onClick={() => navigate("/equipos/nuevo")}
-          style={{
-            backgroundColor: "#00b4d8",
-            border: "none",
-            borderRadius: "8px",
-            padding: "0.8rem 1.5rem",
-            cursor: "pointer",
-            color: "white",
-            fontWeight: "bold",
-          }}
+          style={buttonBase("#00b4d8", "white")}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           ➕ Agregar Equipo
         </button>
@@ -185,17 +184,22 @@ function EquiposPage() {
               style={{
                 backgroundColor: "white",
                 borderRadius: "12px",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
+                border: "1px solid #e0f2ff",
                 overflow: "hidden",
-                transition: "transform 0.2s",
+                transition: "transform 0.2s, box-shadow 0.2s",
                 cursor: "pointer",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "scale(1.03)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "scale(1)")
-              }
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.03)";
+                e.currentTarget.style.boxShadow =
+                  "0 8px 20px rgba(0,0,0,0.15)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow =
+                  "0 6px 16px rgba(0,0,0,0.1)";
+              }}
             >
               <img
                 src={
@@ -206,7 +210,9 @@ function EquiposPage() {
                 style={{ width: "100%", height: "180px", objectFit: "cover" }}
               />
               <div style={{ padding: "1rem" }}>
-                <h3 style={{ color: "#0077b6" }}>{eq.nombre}</h3>
+                <h3 style={{ color: "#0077b6", marginBottom: "0.3rem" }}>
+                  {eq.nombre}
+                </h3>
                 <p style={{ margin: "0.2rem 0" }}>
                   <b>Marca:</b> {eq.marca}
                 </p>
