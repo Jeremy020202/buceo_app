@@ -79,7 +79,7 @@ function MantenimientoDetalle() {
           textAlign: "center",
         }}
       >
-        {/* ✅ Emoji con color natural + título con degradado */}
+        {/* ✅ Emoji sin color + título con degradado */}
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem" }}>
           <span style={{ fontSize: "2rem" }}>
             {mantenimiento.tipo === "Preventivo" ? "🧰" : "⚙️"}
@@ -168,15 +168,29 @@ function MantenimientoDetalle() {
               <b>Descripción:</b> {mantenimiento.descripcion || "Sin descripción"}
             </p>
             <p>
-              <b>Equipo asociado:</b> {mantenimiento.equipo_nombre || `ID ${mantenimiento.equipo_id}`}
+              <b>Equipo asociado:</b>{" "}
+              {mantenimiento.equipo_nombre
+                ? mantenimiento.equipo_nombre
+                : `ID ${mantenimiento.equipo_id}`}
             </p>
 
+            {/* 🔹 Botones principales */}
             <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
               <button onClick={() => setEditando(true)} style={btn("#0077b6", "white")}>
                 ✏️ Editar
               </button>
               <button onClick={handleEliminar} style={btn("#d00000", "white")}>
                 🗑️ Eliminar
+              </button>
+            </div>
+
+            {/* 🔹 Nuevo botón para ver el equipo asociado */}
+            <div style={{ marginTop: "1.5rem" }}>
+              <button
+                onClick={() => navigate(`/equipos/${mantenimiento.equipo_id}`)}
+                style={btn("#00b4d8", "white")}
+              >
+                🔍 Ver equipo asociado
               </button>
             </div>
           </>

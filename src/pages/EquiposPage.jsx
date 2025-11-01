@@ -1,4 +1,4 @@
-//Pagina principal de equipos con filtros y navegación
+// Pagina principal de equipos con filtros y navegación
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -136,8 +136,6 @@ function EquiposPage() {
         <button
           onClick={() => navigate("/inicio")}
           style={buttonBase("#90e0ef", "#03045e")}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           ⬅️ Volver al inicio
         </button>
@@ -145,8 +143,6 @@ function EquiposPage() {
         <button
           onClick={() => navigate("/mantenimientos")}
           style={buttonBase("#0077b6", "white")}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           🔧 Ir a Mantenimientos
         </button>
@@ -154,8 +150,6 @@ function EquiposPage() {
         <button
           onClick={() => navigate("/equipos/nuevo")}
           style={buttonBase("#00b4d8", "white")}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           ➕ Agregar Equipo
         </button>
@@ -201,14 +195,20 @@ function EquiposPage() {
                   "0 6px 16px rgba(0,0,0,0.1)";
               }}
             >
-              <img
-                src={
-                  eq.imagen_url ||
-                  "https://via.placeholder.com/400x250?text=Sin+Imagen"
-                }
-                alt={eq.nombre}
-                style={{ width: "100%", height: "180px", objectFit: "cover" }}
-              />
+              {/* 🖼️ Mostrar imagen solo si existe */}
+              {eq.imagen_url && eq.imagen_url.trim() !== "" && (
+                <img
+                  src={eq.imagen_url}
+                  alt={eq.nombre}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                    borderTopLeftRadius: "10px",
+                    borderTopRightRadius: "10px",
+                  }}
+                />
+              )}
               <div style={{ padding: "1rem" }}>
                 <h3 style={{ color: "#0077b6", marginBottom: "0.3rem" }}>
                   {eq.nombre}
