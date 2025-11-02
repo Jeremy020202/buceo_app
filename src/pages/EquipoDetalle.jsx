@@ -67,15 +67,10 @@ function EquipoDetalle() {
     >
       <ToastContainer position="bottom-right" autoClose={2500} />
 
-      {/* Botón volver */}
-      <button
-        onClick={() => navigate("/equipos")}
-        style={buttonBase("#90e0ef", "#03045e")}
-      >
+      <button onClick={() => navigate("/equipos")} style={buttonBase("#90e0ef", "#03045e")}>
         ⬅️ Volver
       </button>
 
-      {/* Tarjeta principal */}
       <div
         style={{
           backgroundColor: "white",
@@ -88,43 +83,57 @@ function EquipoDetalle() {
           textAlign: "center",
         }}
       >
+        {/* Imagen */}
         {equipo.imagen_url && equipo.imagen_url.trim() !== "" ? (
           <img
             src={equipo.imagen_url}
             alt={equipo.nombre}
-            style={{
-              width: "100%",
-              height: "250px",
-              objectFit: "cover",
-              borderRadius: "10px",
-              marginBottom: "1rem",
-            }}
+            style={imgStyle}
           />
         ) : (
           <img
             src="https://via.placeholder.com/400x250?text=Sin+Imagen"
             alt="Sin imagen"
-            style={{
-              width: "100%",
-              height: "250px",
-              objectFit: "cover",
-              borderRadius: "10px",
-              marginBottom: "1rem",
-            }}
+            style={imgStyle}
           />
         )}
 
         {editando ? (
           <>
             <h2 style={titleStyle}>Editar equipo</h2>
+
             <Campo label="Nombre" name="nombre" value={formData.nombre} onChange={handleChange} />
             <Campo label="Marca" name="marca" value={formData.marca} onChange={handleChange} />
             <Campo label="Modelo" name="modelo" value={formData.modelo} onChange={handleChange} />
             <Campo label="URL de imagen" name="imagen_url" value={formData.imagen_url} onChange={handleChange} />
 
-            <Campo label="Fecha de compra" name="fecha_compra" value={formData.fecha_compra} onChange={handleChange} />
-            <Campo label="Periodo de mantenimiento" name="periodo_mantenimiento" value={formData.periodo_mantenimiento} onChange={handleChange} />
+            {/* 🔹 Fecha de compra */}
+            <div style={fieldContainer}>
+              <label style={labelStyle}>Fecha de compra:</label>
+              <input
+                type="date"
+                name="fecha_compra"
+                value={formData.fecha_compra || ""}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
 
+            {/* 🔹 Periodo de mantenimiento */}
+            <div style={fieldContainer}>
+              <label style={labelStyle}>Periodo de mantenimiento (meses):</label>
+              <input
+                type="number"
+                name="periodo_mantenimiento"
+                min="1"
+                placeholder="Ej: 3"
+                value={formData.periodo_mantenimiento || ""}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+            </div>
+
+            {/* 🔹 Estado */}
             <div style={fieldContainer}>
               <label style={labelStyle}>Estado:</label>
               <select
@@ -136,6 +145,7 @@ function EquipoDetalle() {
                 <option value="Activo">Activo</option>
                 <option value="En mantenimiento">En mantenimiento</option>
                 <option value="Dañado">Dañado</option>
+                <option value="Inactivo">Inactivo</option>
               </select>
             </div>
 
@@ -146,11 +156,14 @@ function EquipoDetalle() {
         ) : (
           <>
             <h2 style={titleStyle}>{equipo.nombre}</h2>
+            <p><b>Código:</b> {equipo.codigo}</p>
             <p><b>Marca:</b> {equipo.marca}</p>
             <p><b>Modelo:</b> {equipo.modelo}</p>
             <p><b>Estado:</b> {equipo.estado}</p>
             <p><b>Fecha de compra:</b> {equipo.fecha_compra}</p>
             <p><b>Periodo de mantenimiento:</b> {equipo.periodo_mantenimiento}</p>
+            <p><b>Próximo mantenimiento:</b> {equipo.proximo_mantenimiento || "—"}</p>
+            <p><b>Último mantenimiento:</b> {equipo.ultimo_mantenimiento || "—"}</p>
 
             <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center", gap: "1rem" }}>
               <button onClick={() => setEditando(true)} style={buttonBase("#0077b6", "white")}>
@@ -164,7 +177,7 @@ function EquipoDetalle() {
         )}
       </div>
 
-      {/* Sección de mantenimientos */}
+      {/* Historial de mantenimientos */}
       <div
         style={{
           marginTop: "2rem",
@@ -194,22 +207,7 @@ function EquipoDetalle() {
             <div
               key={m.id}
               onClick={() => navigate(`/mantenimientos/${m.id}`)}
-              style={{
-                backgroundColor: "#f8f9fa",
-                borderRadius: "8px",
-                padding: "0.8rem",
-                marginTop: "0.8rem",
-                cursor: "pointer",
-                transition: "transform 0.2s, box-shadow 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "scale(1.02)";
-                e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "scale(1)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
+              style={mantenimientoCard}
             >
               <b>{m.tipo === "Preventivo" ? "🧰" : "⚙️"} {m.tipo}</b> — {m.fecha}
               <p style={{ margin: "0.2rem 0", fontSize: "0.9rem" }}>
@@ -225,18 +223,30 @@ function EquipoDetalle() {
 
 // 🔹 Subcomponente reutilizable para campos
 const Campo = ({ label, name, value, onChange }) => (
-  <div style={fieldContainer}>
+  <div style={{ ...fieldContainer, alignItems: "center", width: "98%" }}>
     <label style={labelStyle}>{label}:</label>
-    <input
-      name={name}
-      value={value || ""}
-      onChange={onChange}
-      style={inputStyle}
-    />
+    <input name={name} value={value || ""} onChange={onChange} style={inputStyle} />
   </div>
 );
 
-// 🎨 Estilos reutilizables
+// 🎨 Estilos
+const imgStyle = {
+  width: "100%",
+  height: "250px",
+  objectFit: "cover",
+  borderRadius: "10px",
+  marginBottom: "1rem",
+};
+
+const mantenimientoCard = {
+  backgroundColor: "#f8f9fa",
+  borderRadius: "8px",
+  padding: "0.8rem",
+  marginTop: "0.8rem",
+  cursor: "pointer",
+  transition: "transform 0.2s, box-shadow 0.2s",
+};
+
 const titleStyle = {
   background: "linear-gradient(90deg, #0077b6, #00b4d8)",
   WebkitBackgroundClip: "text",
@@ -248,15 +258,15 @@ const titleStyle = {
 const fieldContainer = { marginBottom: "1rem", textAlign: "left" };
 const labelStyle = { display: "block", fontWeight: "bold", marginBottom: "0.3rem", color: "#0077b6" };
 const inputStyle = {
-  width: "100%",
-  padding: "0.7rem 1rem",
+  width: "98%",
+  padding: "0.8rem 1rem",
   borderRadius: "8px",
   border: "1px solid #90e0ef",
   fontSize: "1rem",
-  backgroundColor: "white",
   color: "#03045e",
-  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
-  transition: "border-color 0.2s",
+  backgroundColor: "white",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+  transition: "border-color 0.2s, box-shadow 0.2s",
 };
 const buttonBase = (bg, color) => ({
   backgroundColor: bg,
