@@ -26,6 +26,7 @@ function Home() {
 
   const [data, setData] = useState([]);
   const [sinMantenimiento, setSinMantenimiento] = useState([]);
+  const [proximos, setProximos] = useState([]);
 
 
   // --- CARGAR DATOS DEL BACKEND ---
@@ -73,7 +74,15 @@ function Home() {
       .then((res) => res.json())
       .then((json) => setSinMantenimiento(json))
       .catch((e) => console.error("Error al cargar equipos sin mantenimiento:", e));
+      
+    // 🔹 Próximos mantenimientos
+    fetch("http://localhost:5000/dashboard/proximos-mantenimientos")
+      .then((res) => res.json())
+      .then((json) => setProximos(json))
+      .catch((e) => console.error("Error al cargar próximos mantenimientos:", e));
   }, []);
+
+
 
   return (
     <div
@@ -201,6 +210,56 @@ function Home() {
     </table>
   )}
 </div>
+{/* ======== TABLA — PRÓXIMOS 5 MANTENIMIENTOS ======== */}
+<div
+  style={{
+    background: "white",
+    padding: "2rem",
+    borderRadius: "15px",
+    width: "100%",
+    maxWidth: "900px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+  }}
+>
+  <h2 style={{ marginBottom: "1rem", color: "#023e8a", textAlign: "center" }}>
+    Próximos mantenimientos 
+  </h2>
+
+  {proximos.length === 0 ? (
+    <p style={{ textAlign: "center", color: "#666" }}>
+      ✔ No hay mantenimientos próximos programados.
+    </p>
+  ) : (
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead>
+        <tr style={{ background: "#e9ecef" }}>
+          <th style={thStyle}>Nombre</th>
+          <th style={thStyle}>Tipo</th>
+          <th style={thStyle}>Fecha próxima</th>
+        </tr>
+      </thead>
+      <tbody>
+        {proximos.map((eq) => (
+          <tr
+            key={eq.id}
+            onClick={() => navigate(`/equipos/${eq.id}`)}
+            style={{
+              borderBottom: "1px solid #ddd",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#f1f3f5")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "white")}
+          >
+            <td style={tdStyle}>{eq.nombre}</td>
+            <td style={tdStyle}>{eq.tipo}</td>
+            <td style={tdStyle}>{eq.proximo_mantenimiento}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
 
 
       {/* ======== BOTONES ORIGINALES ======== */}
