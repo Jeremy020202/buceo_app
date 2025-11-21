@@ -13,6 +13,7 @@ function EquipoDetalle() {
   const [editando, setEditando] = useState(false);
   const [formData, setFormData] = useState({});
 
+
   useEffect(() => {
     api
       .get(`/equipos/${id}`)
@@ -29,6 +30,32 @@ function EquipoDetalle() {
   }, [id]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleUploadImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+
+    const formDataImg = new FormData();
+    formDataImg.append("imagen", file);
+
+    try {
+      const res = await fetch("http://localhost:5000/upload-image", {
+        method: "POST",
+        body: formDataImg,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setFormData((prev) => ({ ...prev, imagen_url: data.url }));
+        toast.success("📸 Imagen actualizada");
+      } else {
+        toast.error("❌ Error al subir la imagen");
+      }
+    } catch {
+      toast.error("⚠️ No se pudo conectar al servidor");
+    }
+  };
 
   const handleGuardar = async () => {
     try {
@@ -105,7 +132,25 @@ function EquipoDetalle() {
             <Campo label="Nombre" name="nombre" value={formData.nombre} onChange={handleChange} />
             <Campo label="Marca" name="marca" value={formData.marca} onChange={handleChange} />
             <Campo label="Modelo" name="modelo" value={formData.modelo} onChange={handleChange} />
-            <Campo label="URL de imagen" name="imagen_url" value={formData.imagen_url} onChange={handleChange} />
+            {/* IMAGEN: URL o subida */}
+            <div style={{ ...fieldContainer, alignItems: "center", width: "98%" }}>
+              <label style={labelStyle}>Imagen del equipo:</label>
+
+              {/* Input URL */}
+              <input
+                type="text"
+                name="imagen_url"
+                placeholder="Pega un enlace de imagen..."
+                value={formData.imagen_url || ""}
+                onChange={handleChange}
+                style={inputStyle}
+              />
+
+              <p style={{ margin: "0.5rem 0", fontWeight: "bold", color: "#0077b6" }}>o</p>
+
+              {/* Subida desde PC */}
+              <input type="file" accept="image/*" onChange={handleUploadImage} />
+            </div>
 
             {/* 🔹 Fecha de compra */}
             <div style={fieldContainer}>

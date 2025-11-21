@@ -19,6 +19,8 @@ function EquipoForm() {
     estado: "",
     imagen_url: "",
   });
+  const [imagenArchivo, setImagenArchivo] = useState(null);
+
 
   // ===============================
   //   AUTOGENERAR CÓDIGO
@@ -67,6 +69,38 @@ function EquipoForm() {
     if (!form.estado) return "Debe seleccionar un estado.";
     return null;
   };
+  // ===============================
+  //   SUBIR IMAGEN AL SERVIDOR REVISAR QUE FUNCIONE
+  // ===============================
+const handleUploadImage = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  setImagenArchivo(file);
+
+  const formDataImg = new FormData();
+  formDataImg.append("imagen", file);
+
+  try {
+    const res = await fetch("http://localhost:5000/upload-image", {
+      method: "POST",
+      body: formDataImg,
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setForm((prev) => ({ ...prev, imagen_url: data.url }));
+      toast.success("📸 Imagen subida correctamente");
+    } else {
+      toast.error("❌ Error al subir la imagen");
+    }
+
+  } catch  {
+    toast.error("⚠️ No se pudo conectar al servidor");
+  }
+};
+
 
   // ===============================
   //   ENVIAR FORMULARIO
@@ -261,18 +295,37 @@ function EquipoForm() {
           />
         </div>
 
-        {/* Imagen */}
+        {/* Imagen por URL */}
         <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
           <label htmlFor="imagen_url" style={labelStyle}>URL de imagen (opcional)</label>
           <input
             id="imagen_url"
             name="imagen_url"
             type="text"
+            placeholder="https://ejemplo.com/imagen.jpg"
             value={form.imagen_url}
             onChange={handleChange}
             style={inputStyle}
           />
         </div>
+
+        {/* Subir imagen local */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
+          <label style={labelStyle}>O subir imagen desde tu computadora</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleUploadImage}
+            style={inputStyle}
+          />
+
+          {imagenArchivo && (
+            <p style={{ color: "#555", fontSize: "0.9rem", marginTop: "0.3rem" }}>
+              Archivo seleccionado: {imagenArchivo.name}
+            </p>
+          )}
+        </div>
+
 
         {/* Estado */}
         <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
