@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 
+// 🟦 Toastify
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function EquipoForm() {
   const navigate = useNavigate();
   const [, setEquipos] = useState([]);
@@ -16,38 +20,41 @@ function EquipoForm() {
     imagen_url: "",
   });
 
-// dentro de EquipoForm.jsx - reemplaza la useEffect anterior por esta
-useEffect(() => {
-  api
-    .get("/equipos")
-    .then((res) => {
-      setEquipos(res.data || []);
+  // ===============================
+  //   AUTOGENERAR CÓDIGO
+  // ===============================
+  useEffect(() => {
+    api
+      .get("/equipos")
+      .then((res) => {
+        setEquipos(res.data || []);
 
-      // Obtener códigos numéricos válidos y tomar el máximo
-      const numericCodes = (res.data || [])
-        .map((eq) => {
-          const n = parseInt(eq.codigo, 10);
-          return isNaN(n) ? null : n;
-        })
-        .filter((n) => n !== null);
+        const numericCodes = (res.data || [])
+          .map((eq) => {
+            const n = parseInt(eq.codigo, 10);
+            return isNaN(n) ? null : n;
+          })
+          .filter((n) => n !== null);
 
-      const maxCodigo = numericCodes.length ? Math.max(...numericCodes) : 0;
-      setForm((prev) => ({ ...prev, codigo: (maxCodigo + 1).toString() }));
-    })
-    .catch(() => {
-      console.error("Error al cargar equipos");
-      // en caso de error, ponemos 1 por defecto
-      setForm((prev) => ({ ...prev, codigo: "1" }));
-    });
-}, []);
+        const maxCodigo = numericCodes.length ? Math.max(...numericCodes) : 0;
+        setForm((prev) => ({ ...prev, codigo: (maxCodigo + 1).toString() }));
+      })
+      .catch(() => {
+        console.error("Error al cargar equipos");
+        setForm((prev) => ({ ...prev, codigo: "1" }));
+      });
+  }, []);
 
-
-  //  Manejar cambios
+  // ===============================
+  //   MANEJAR CAMBIOS
+  // ===============================
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  //  Validar formulario
+  // ===============================
+  //   VALIDACIÓN DEL FORMULARIO
+  // ===============================
   const validarFormulario = () => {
     if (!form.nombre.trim()) return "El nombre no puede estar vacío.";
     if (!form.marca.trim()) return "La marca no puede estar vacía.";
@@ -61,16 +68,18 @@ useEffect(() => {
     return null;
   };
 
-  //  Enviar formulario
+  // ===============================
+  //   ENVIAR FORMULARIO
+  // ===============================
   const handleSubmit = async (e) => {
     e.preventDefault();
     const error = validarFormulario();
     if (error) {
-      alert("⚠️ " + error);
+      toast.error("⚠️ " + error);
       return;
     }
 
-    //  Calcular fecha del próximo mantenimiento
+    // Calcular próximo mantenimiento
     let proximo_mantenimiento = null;
     try {
       const fechaCompra = new Date(form.fecha_compra);
@@ -92,15 +101,18 @@ useEffect(() => {
 
     try {
       await api.post("/equipos", nuevoEquipo);
-      alert("✅ Equipo agregado correctamente");
-      navigate("/equipos");
+      toast.success("✅ Equipo agregado correctamente");
+
+      setTimeout(() => navigate("/equipos"), 2000);
     } catch (err) {
       console.error(err);
-      alert("❌ Error al conectar con el servidor");
+      toast.error("❌ Error al conectar con el servidor");
     }
   };
 
-  //  Estilos
+  // ===============================
+  //   ESTILOS
+  // ===============================
   const inputStyle = {
     width: "98%",
     alignSelf: "center",
@@ -142,6 +154,9 @@ useEffect(() => {
         alignItems: "center",
       }}
     >
+      {/*  TOAST CONTAINER */}
+      <ToastContainer position="bottom-right" autoClose={2500} />
+
       <h2
         style={{
           textAlign: "center",
@@ -170,8 +185,17 @@ useEffect(() => {
         }}
       >
         {/* Código autogenerado */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
-          <label htmlFor="codigo" style={labelStyle}>Código</label>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.3rem",
+            alignItems: "center",
+          }}
+        >
+          <label htmlFor="codigo" style={labelStyle}>
+            Código
+          </label>
           <input
             id="codigo"
             name="codigo"
@@ -184,7 +208,15 @@ useEffect(() => {
 
         {/* Campos de texto */}
         {["nombre", "marca", "modelo"].map((field) => (
-          <div key={field} style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
+          <div
+            key={field}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.3rem",
+              alignItems: "center",
+            }}
+          >
             <label htmlFor={field} style={labelStyle}>
               {field.charAt(0).toUpperCase() + field.slice(1)}
             </label>
@@ -199,7 +231,7 @@ useEffect(() => {
           </div>
         ))}
 
-        {/* Fecha de compra */}
+        {/* Fecha compra */}
         <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
           <label htmlFor="fecha_compra" style={labelStyle}>Fecha de compra</label>
           <input
@@ -212,9 +244,11 @@ useEffect(() => {
           />
         </div>
 
-        {/* Periodo de mantenimiento */}
+        {/* Periodo */}
         <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", alignItems: "center" }}>
-          <label htmlFor="periodo_mantenimiento" style={labelStyle}>Periodo de mantenimiento (meses)</label>
+          <label htmlFor="periodo_mantenimiento" style={labelStyle}>
+            Periodo de mantenimiento (meses)
+          </label>
           <input
             id="periodo_mantenimiento"
             name="periodo_mantenimiento"
@@ -260,19 +294,24 @@ useEffect(() => {
 
         {/* Botones */}
         <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
-          <button type="submit" style={buttonBase("#0077b6", "white")}>💾 Guardar equipo</button>
-          <button type="button" onClick={() => navigate("/equipos")} style={buttonBase("#90e0ef", "#03045e")}>
+          <button type="submit" style={buttonBase("#0077b6", "white")}>
+            💾 Guardar equipo
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/equipos")}
+            style={buttonBase("#90e0ef", "#03045e")}
+          >
             🔙 Cancelar
           </button>
         </div>
       </form>
 
-      {/*  Fix para el ícono del calendario */}
+      {/* Fix visual */}
       <style>
         {`
           input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(40%) sepia(80%) saturate(400%) hue-rotate(170deg);
-            background-color: rgba(0, 180, 216, 0.15);
             border-radius: 50%;
             padding: 2px;
             cursor: pointer;
